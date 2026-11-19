@@ -1,0 +1,51 @@
+
+# FIND-S Algorithm Implementation
+
+import pandas as pd
+
+# Training Dataset
+data = {
+    'Sky': ['Sunny', 'Sunny', 'Rainy', 'Sunny'],
+    'AirTemp': ['Warm', 'Warm', 'Cold', 'Warm'],
+    'Humidity': ['Normal', 'High', 'High', 'High'],
+    'Wind': ['Strong', 'Strong', 'Strong', 'Strong'],
+    'Water': ['Warm', 'Warm', 'Warm', 'Cool'],
+    'Forecast': ['Same', 'Same', 'Change', 'Change'],
+    'EnjoySport': ['Yes', 'Yes', 'No', 'Yes']
+}
+
+df = pd.DataFrame(data)
+
+print("Training Dataset:")
+print(df)
+
+# FIND-S Algorithm
+def find_s_algorithm(df):
+    attributes = list(df.columns[:-1])
+    target = df.columns[-1]
+
+    hypothesis = ['0'] * len(attributes)
+
+    for index, row in df.iterrows():
+
+        if row[target] == 'Yes':
+
+            for i in range(len(attributes)):
+
+                if hypothesis[i] == '0':
+                    hypothesis[i] = row[attributes[i]]
+
+                elif hypothesis[i] != row[attributes[i]]:
+                    hypothesis[i] = '?'
+
+        print("After Example", index + 1, ":", hypothesis)
+
+    return hypothesis
+
+
+# Execute FIND-S
+print("\nFIND-S Algorithm Steps:")
+final_hypothesis = find_s_algorithm(df)
+
+print("\nFinal Most Specific Hypothesis:")
+print(final_hypothesis)
