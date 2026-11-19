@@ -1,0 +1,72 @@
+
+import pandas as pd
+import csv
+
+# Read training data from CSV file
+data = pd.read_csv('training_data.csv')
+
+print("Training Dataset:")
+print(data)
+
+# Separate attributes and target
+X = data.iloc[:, :-1].values
+Y = data.iloc[:, -1].values
+
+# Initialize Specific and General boundaries
+S = ['0'] * len(X[0])
+G = [['?'] * len(X[0])]
+
+# Candidate Elimination Algorithm
+for i, example in enumerate(X):
+
+    if Y[i] == 'Yes':
+
+        # Remove inconsistent hypotheses from G
+        G = [g for g in G if all(
+            g[j] == '?' or g[j] == example[j]
+            for j in range(len(example))
+        )]
+
+        # Generalize S
+        for j in range(len(example)):
+            if S[j] == '0':
+                S[j] = example[j]
+            elif S[j] != example[j]:
+                S[j] = '?'
+
+    else:
+
+        # Remove inconsistent hypotheses from S
+        if all(S[j] == '?' or S[j] == example[j]
+               for j in range(len(example))):
+            S = ['0'] * len(example)
+
+        # Specialize G
+        new_G = []
+
+        for g in G:
+            if all(g[j] == '?' or g[j] == example[j]
+                   for j in range(len(example))):
+
+                for j in range(len(example)):
+                    if g[j] == '?':
+                        if S[j] != '?' and S[j] != '0':
+                            h = g.copy()
+                            h[j] = S[j]
+                            new_G.append(h)
+            else:
+                new_G.append(g)
+
+        G = new_G
+
+    print("\nAfter Example", i + 1)
+    print("Specific Boundary (S):", S)
+    print("General Boundary (G):", G)
+
+# Final Output
+print("\nFinal Specific Boundary (S):")
+print(S)
+
+print("\nFinal General Boundary (G):")
+for g in G:
+    print(g)
