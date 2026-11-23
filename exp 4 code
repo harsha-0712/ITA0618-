@@ -1,0 +1,71 @@
+# Import required libraries
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step 1: Load the Iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+# Step 2: Split the dataset into training and testing data
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 3: Normalize the input data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Step 4: Create ANN model using Backpropagation
+model = MLPClassifier(
+    hidden_layer_sizes=(10,),
+    activation='relu',
+    solver='adam',
+    learning_rate_init=0.01,
+    max_iter=1000,
+    random_state=42
+)
+
+# Step 5: Train the ANN model
+model.fit(X_train, y_train)
+
+# Step 6: Test the model
+y_pred = model.predict(X_test)
+
+# Step 7: Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy * 100, "%")
+
+# Step 8: Display confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+print("\nConfusion Matrix:")
+print(cm)
+
+# Step 9: Display classification report
+print("\nClassification Report:")
+print(classification_report(y_test, y_pred, target_names=iris.target_names))
+
+# Step 10: Plot confusion matrix
+plt.figure(figsize=(6, 4))
+plt.imshow(cm, cmap='Blues')
+plt.title("ANN Confusion Matrix")
+plt.xlabel("Predicted Output")
+plt.ylabel("Actual Output")
+plt.xticks(range(3), iris.target_names)
+plt.yticks(range(3), iris.target_names)
+plt.colorbar()
+plt.show()
+
+# Step 11: Plot training loss
+plt.plot(model.loss_curve_)
+plt.title("ANN Training Loss")
+plt.xlabel("Iterations")
+plt.ylabel("Loss")
+plt.grid()
+plt.show()
