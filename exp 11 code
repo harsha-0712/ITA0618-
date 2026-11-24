@@ -1,0 +1,84 @@
+# Import required libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+# Step 1: Create dataset
+data = {
+    'Income': [50000, 30000, 80000, 25000, 60000, 40000, 90000, 20000, 70000, 35000],
+    'Age': [30, 25, 40, 22, 35, 28, 45, 21, 38, 26],
+    'Loan': [10000, 20000, 15000, 25000, 12000, 18000, 10000, 30000, 14000, 22000],
+    'Payment': [90, 60, 95, 40, 85, 65, 98, 30, 90, 50],
+    'CreditScore': ['Good', 'Poor', 'Good', 'Poor', 'Good',
+                    'Standard', 'Good', 'Poor', 'Good', 'Standard']
+}
+
+df = pd.DataFrame(data)
+
+# Step 2: Separate input and output
+X = df.drop('CreditScore', axis=1)
+y = df['CreditScore']
+
+# Step 3: Encode output labels
+le = LabelEncoder()
+y = le.fit_transform(y)
+
+# Step 4: Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, random_state=42, stratify=y
+)
+
+# Step 5: Create Random Forest model
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+
+# Step 6: Train the model
+model.fit(X_train, y_train)
+
+# Step 7: Predict credit score
+y_pred = model.predict(X_test)
+
+# Step 8: Calculate accuracy
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy:", accuracy * 100, "%")
+
+# Step 9: Display confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+print("\nConfusion Matrix:")
+print(cm)
+
+# Step 10: Display classification report
+print("\nClassification Report:")
+print(classification_report(
+    y_test, y_pred,
+    labels=[0, 1, 2],
+    target_names=le.inverse_transform([0, 1, 2]),
+    zero_division=0
+))
+
+# Step 11: Plot confusion matrix
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues',
+            xticklabels=le.classes_,
+            yticklabels=le.classes_)
+
+plt.title("Credit Score Classification")
+plt.xlabel("Predicted Score")
+plt.ylabel("Actual Score")
+plt.show()
+
+# Step 12: Predict a new customer's credit score
+new_customer = pd.DataFrame(
+    [[55000, 32, 12000, 88]],
+    columns=['Income', 'Age', 'Loan', 'Payment']
+)
+
+prediction = model.predict(new_customer)
+
+print("\nNew Customer Credit Score:",
+      le.inverse_transform(prediction)[0])
