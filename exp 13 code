@@ -1,0 +1,84 @@
+# Import required libraries
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Step 1: Create sample dataset
+data = {
+    'Year': [2015, 2016, 2017, 2018, 2019,
+             2020, 2021, 2015, 2017, 2019],
+    'Kms_Driven': [50000, 40000, 35000, 30000, 25000,
+                   20000, 15000, 60000, 45000, 22000],
+    'Fuel_Type': ['Petrol', 'Diesel', 'Petrol', 'Diesel',
+                  'Petrol', 'Diesel', 'Petrol', 'Diesel',
+                  'Petrol', 'Diesel'],
+    'Transmission': ['Manual', 'Manual', 'Automatic', 'Manual',
+                     'Automatic', 'Manual', 'Automatic', 'Manual',
+                     'Automatic', 'Manual'],
+    'Price': [400000, 500000, 600000, 700000, 800000,
+              900000, 1000000, 350000, 550000, 850000]
+}
+
+df = pd.DataFrame(data)
+
+print("Car Dataset:")
+print(df)
+
+# Step 2: Encode categorical data
+le_fuel = LabelEncoder()
+le_trans = LabelEncoder()
+
+df['Fuel_Type'] = le_fuel.fit_transform(df['Fuel_Type'])
+df['Transmission'] = le_trans.fit_transform(df['Transmission'])
+
+# Step 3: Separate input and output
+X = df.drop('Price', axis=1)
+y = df['Price']
+
+# Step 4: Split dataset
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Step 5: Create Linear Regression model
+model = LinearRegression()
+
+# Step 6: Train the model
+model.fit(X_train, y_train)
+
+# Step 7: Predict car prices
+y_pred = model.predict(X_test)
+
+# Step 8: Display actual and predicted prices
+print("\nActual Prices:", list(y_test))
+print("Predicted Prices:", np.round(y_pred, 2))
+
+# Step 9: Calculate performance
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print("\nMean Squared Error:", mse)
+print("R2 Score:", r2)
+
+# Step 10: Predict price of a new car
+new_car = pd.DataFrame(
+    [[2020, 18000, 1, 0]],
+    columns=X.columns
+)
+
+predicted_price = model.predict(new_car)
+
+print("\nPredicted Car Price: Rs.", round(predicted_price[0], 2))
+
+# Step 11: Plot actual vs predicted prices
+plt.scatter(y_test, y_pred, color='blue')
+plt.xlabel("Actual Car Price")
+plt.ylabel("Predicted Car Price")
+plt.title("Car Price Prediction")
+plt.grid()
+plt.show()
